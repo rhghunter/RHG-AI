@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Set up Multer for file uploads. Uploaded files will be stored in "uploads/" directory.
-const uploads = multer({ dest: path.join(__dirname, 'uploads/')); // Use path.join for consistency
+const uploads = multer({ dest: path.join(__dirname, 'uploads') }); // Use path.join for consistency
 
 // Check if the GEMINI_API_KEY is available in the environment variables
 if (!process.env.GEMINI_API_KEY) {
