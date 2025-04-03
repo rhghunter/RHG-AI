@@ -16,15 +16,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Set up Multer for file uploads. Uploaded files will be stored in "uploads/" directory.
-const uploads = multer({ dest: "uploads/" });
+const uploads = multer({ dest: path.join(__dirname, 'uploads/')); // Use path.join for consistency
 
 // Check if the GEMINI_API_KEY is available in the environment variables
 if (!process.env.GEMINI_API_KEY) {
   console.error("Error: env file is missing the API KEY");
   process.exit(1); // Exit the process if the API key is not set
-  app.use(express.urlencoded({ extended: true }));
-  app.use(express.json());
-  app.use(express.static(path.join(__dirname, 'public')));
 }
 
 // Initialize Google Generative AI with the API key
@@ -47,7 +44,7 @@ app.post("/get", uploads.single("file"), async (req, res) => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Initialize the prompt with user input
-    let prompt = {
+    const prompt = { // Use const for prompt as it's not reassigned
       parts: [{ text: userInput }]
     };
     // If a file is uploaded, read its contents and prepare it as inline image data
@@ -59,12 +56,12 @@ app.post("/get", uploads.single("file"), async (req, res) => {
           mimeType: file.mimetype, // Specify the MIME type of the file
         },
       };
-      prompt.push(image); // Append the image data to the prompt
+      prompt.parts.push({ image }); // Append the image object to the 'parts' array
     }
 
     // Generate content using the AI model
     const response = await model.generateContent({
-      contents: [prompt],
+      contents: [prompt], // Wrap the prompt object in an array under 'contents'
       generationConfig: {
         temperature: 0,
       },
@@ -81,5 +78,14 @@ app.post("/get", uploads.single("file"), async (req, res) => {
       fs.unlinkSync(file.path);
     }
   }
+});
+
+// Start the server on the specified port (default: 3000)
+const PORT = process.env.PORT || 3000;
+// Vercel will provide its own HOST environment variable
+const HOST = '0.0.0.0'; // Listen on all interfaces for Vercel
+
+app.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });
 
