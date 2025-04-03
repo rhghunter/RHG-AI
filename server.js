@@ -83,10 +83,3 @@ app.post("/get", uploads.single("file"), async (req, res) => {
   }
 });
 
-// Start the server on the specified port (default: 3000)
-const PORT = process.env.PORT || 3000;
-const HOST = '72.14.201.198';
-
-app.listen(PORT, HOST, () => {
-  console.log(`Server running at http://<span class="math-inline">\{HOST\}\:</span>{PORT}`);
-});
